@@ -1,0 +1,503 @@
+<!DOCTYPE html>
+<html lang="en">
+<title>Quiz Example</title>
+<style>
+    /* Option box */
+    .option {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px;
+        cursor: pointer;
+        width: 200px;
+      /*height: 50px;*/
+    }
+    /* background color indication for correct answer */
+    .correct {
+        background-color: lightgreen;
+    }
+    /* background colour indication for wrong answer */
+    .wrong {
+        background-color: lightcoral;
+    }
+    .next {
+        border: 1px solid #ccc;
+        padding: 10px;
+        margin: 10px;
+        width: 100px;
+        cursor: pointer;
+        background-color: grey;
+    }
+</style>
+<title>Responsive Images</title>
+<style>
+    /* Default image size (for desktop) */
+    .responsive-image {
+        width: 40%; /* Adjust this value as needed */
+    }
+
+    /* Mobile styles */
+    @media only screen and (max-width: 768px) {
+        .responsive-image {
+            width: 30%; /* Full width for mobile */
+            height: auto;
+        }
+    }
+</style>
+  
+<title>Display Images</title>
+<style>
+    /* Default image size (for desktop) */
+    .display-image {
+        width: 40%; /* Adjust this value as needed */
+      	height: 40%
+    }
+
+    /* Mobile styles */
+    @media only screen and (max-width: 768px) {
+        .display-image {
+            width: 40%; /* Full width for mobile */
+            height: auto;
+        }
+    }
+</style>
+</head>
+<body>
+
+<img id="resultImage" style="text-align: center; clear: center; float: right; display: none;">
+  
+<div id="quiz-container"></div>
+
+<div id="updateQue"> 
+  <div class="next" onclick="updateQuestion()">NEXT</div>
+</div>
+
+<p>Number of correct answers: <span id="correctCount">0</span></p>
+
+<script>
+// Define quiz data
+const quizData = [
+    {
+        question: "A for?",
+        options: ["Cup", "Apple", "Orange", "Zebra"],
+        optionsImage: [
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEijDFEKRQPHGBvXDtRSpCy9z1zMHprju89wo64V0eCcK-c2WH-H0L7A746Zs6p_exEIq36cmgh01Ww2-JxdWXaWn19eB6MRkUQO_w7GuE254c05HS0PQOHRnvS2r9owAmbLm5832kTjYz40CccFLf2xX3zMOwMeB7JBfzo3wdodkE8Lfe1LFxDdtDHIDa3i/s225/cup.jpg",
+          
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhfX5-4p7r_aeynl4zQ600IHr4jIO6QaaWH13E-klq15G5YG2rrAqj4POTYEOVIcguXNk3mBKuz4Ll7j4ZkB0ESR12RXyRf0M-57zH9ccZO9KULICbWBUtj40ec-nE3yYLGkvz_6xzZXf8FHE3Kgx4efylnmNqbRF-EfNB5B33GmVnxt4BeJoXVGCqrOgP4/s400/apple_158989157.jpg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqris9tfI4Ma076n0jgCmFBZT2XXGNkumSmC2Twn83Xdz67bAIeKJwBvvoXS0vGIuD13aCrbnJ57NL3gkYwyZUSD6XmHo3hxPhpyPfZZp1SIkHcoP6QOxYyqwqL3q3p7PQAACTUGKE14_f0UDtyABTxn3-TR72y-XSBSgftzl5non1hNiGJnyP7Ln88njA/s400/Orange.jpg",
+          "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO_4OvXF1QtIPcyxCfk6Zf3CalUNw-t_QY3rmTqVt_TnvvKACbExhbY-5z3n3cfDQRDPl2Jr_AyPnq8GZ2BBw2pirc1ntOO1wbH2kQeIqU4Guqn-UsVqs0WzIf7BczL8jKO3rAA7eDrkAQkTonCmiJl0Gbqf2mtrKQZW_NHW4A42uIz_Un8arTFCGU_cfZ/s400/zebra.jpeg"],
+        correctIndex: 1,
+        imageUrl: 
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhfX5-4p7r_aeynl4zQ600IHr4jIO6QaaWH13E-klq15G5YG2rrAqj4POTYEOVIcguXNk3mBKuz4Ll7j4ZkB0ESR12RXyRf0M-57zH9ccZO9KULICbWBUtj40ec-nE3yYLGkvz_6xzZXf8FHE3Kgx4efylnmNqbRF-EfNB5B33GmVnxt4BeJoXVGCqrOgP4/s400/apple_158989157.jpg"
+    },
+    {
+        question: "B for?",
+        options: ["Fish", "Mug", "King", "Ball"],
+        optionsImage: [
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMTg5CULdYWn9bG5Fir8XtCL90RMpKl2JzCoBK3SjPY2cj14lOKOX0lBSiDwVdyLf_Al6gFG_36uXA5XyzJjIiZOSKe8UdIG_tp5q3qRkJEhGgHQq0_RHvoAfrrgDmb7KIEA28bhXgddmb2EskVKvE0ockZfPzLcyY_B8e6_l8_72QiPJRRfZJeNxPzdgp/s400/Fish.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiyLGEqBofrnWMA9rA1A9_t3YP9I0vMuPk1tZCQYpeS0J7FqbYCPuFpvIoT7RxmQPjptDpE_MbtfGWYg92CeDd7kQPwPPh2K61VAsJBc20-CAIEK8VKbClAyeErmvQPqCXXyP_TSHcTHINrExeAGXnwmmI6q9N1gWiYQj1ixBym2iryXGdcIM8Np-tbBNnc/s274/IMG_20240520_213749.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi9Yl57XENL6F38krwqnmAoUuV8_YYdeH07KScfQtTkcE4f9TMIRVDz8cT9A9w7cVMG52Q795ax8pN8t5aDMFmP0Oba5etCBUkm7rhJ9LuBSwWHKdIa4ErKvXY98cbn_8u74fGjoV8GW8k4iNkAQvIwctW1Om3VX1-xxLWeavAg03toYafkiPYtlm_9bfZ-/s450/images%20-%202024-05-20T214413.726.jpeg",                       "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpVelsiFZt8YQ3eNDujoiV9VwLhgfxVeQ72Uqy9qE2aR4eK2yfMQqkY2wv6DlkT9wCwcEw29fjz1wjfX_xymPPkPDEH_KTWbuAYX8f_OIBWOcbaNrVOhOIs0w19QnuJ1igxIqElzf1QRHEvDj328GC1m1tvujS3wdsgEFM0viOcBCft2bpbngPHFSKiLjU/s400/football.webp"],
+        correctIndex: 3,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpVelsiFZt8YQ3eNDujoiV9VwLhgfxVeQ72Uqy9qE2aR4eK2yfMQqkY2wv6DlkT9wCwcEw29fjz1wjfX_xymPPkPDEH_KTWbuAYX8f_OIBWOcbaNrVOhOIs0w19QnuJ1igxIqElzf1QRHEvDj328GC1m1tvujS3wdsgEFM0viOcBCft2bpbngPHFSKiLjU/s400/football.webp"
+    },
+    {
+        question: "C for?",
+        options: ["Basket", "Hat", "Cat", "Rat"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhIkkPhrUiEaMkDpb6IPFusUNPoGx8NPsTlpTpFe0xPZJ6FkNxZOPvfeTs1aC6QV2RNxkXXDelim4j09C4pfxADBy_EUhaJpvw_lLzJWrEHfCFrZG_rJgU2nC17_XDyp7BwNNZeIM9q1jdm06ny9vCee7jZ8-3NpYJutwVH48tzEiuSiwAutcOmipm888CP/s626/images%20-%202024-05-20T214909.994.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCCuMfeYDdPeLB9UVNM6XXtmpFLALSKl2XksXG2TH-k02XtwWxR9Mpysx2BXv20aniSkFr9BdSxuMcnjw5Y3yN5lvf_CobTD9bznFtu2YQDu8rmJWaIZTBkIo69MUsT-9GLgHSZ9Ea4MecyeM5o6xvlvu9pyjDwAYw1ULDG2y_7yO8wPFyBdUZ8mTEdCQj/s400/Hat.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjZz4a5_X4XaGrjHO1JhArKiCZExpqgZYI0ylmsxpGwskQW94v2PRCGDWBeHoVSYojXHNcCWXXmcalnbKxVVRVlXsXrhP07wnr5uJHFZ7b4h_VyGLoNuuIdhBFqku8r8mxLYlJWom1qSSjSFvBoOx0Klm40rMy63BlJvkpM0EuRXWEMZPPO0g3A_5H6e_9i/s400/cat.jpg",     
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjyNSrk6MnS7dpSRFd6Ff5InX1dW0TIMUVw1wQA9wddAzRU85akgcuqVOtRN7YlNPPAp5nmNsbuqIYn3A2P3NDezrpOUpzLlkko_roQkaMrOS2abzZPLPEzTbzZ4msHeZaTiEFJ6NH0TlQvox3R5JhhsN61WwG72gP3eZpG3G_tV1oqEmx5Zu8fYuqwLIyK/s554/images%20-%202024-05-20T220141.364.jpeg"],
+        correctIndex: 2,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjZz4a5_X4XaGrjHO1JhArKiCZExpqgZYI0ylmsxpGwskQW94v2PRCGDWBeHoVSYojXHNcCWXXmcalnbKxVVRVlXsXrhP07wnr5uJHFZ7b4h_VyGLoNuuIdhBFqku8r8mxLYlJWom1qSSjSFvBoOx0Klm40rMy63BlJvkpM0EuRXWEMZPPO0g3A_5H6e_9i/s400/cat.jpg"
+    },
+    {
+        question: "D for?",
+        options: ["Dog", "Frog", "Mug", "Jug"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_p6yJe3CyghLbq0QWgnelcfvTFxPpILvBpn39LNQMYNJ8bUx0qB0IsN6lp1VPywQKZkOTsZspNApt8FB2xAl3UKgBlFuNSKXfxoNTFHGc3SstJd65aqleMG55HaGvmS2eBLzonI0SMfApBR8WrgOpBqeMQu7V-JoPSGJmzGmHGl5S6122EQ2ZZnfR7tI9/s400/dog.webp",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgcFDInV140X2HiI03EhpayUsCmzqBauhCji9ww5u4LQ_w4akEETJef51gaU5_EqwYLsIxBXzsaWC2RoTpOQW7404X94vaLA6i3-m9ims-zd4kYUrxt02NHfC_rXsvuBaQ9JIRz5Y7-h3awx0WW2ndp99UInn-5-KfIFu1ePvHblIvj-9MY6W0dpZmHrOgn/s678/images%20-%202024-05-21T104933.648.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiyLGEqBofrnWMA9rA1A9_t3YP9I0vMuPk1tZCQYpeS0J7FqbYCPuFpvIoT7RxmQPjptDpE_MbtfGWYg92CeDd7kQPwPPh2K61VAsJBc20-CAIEK8VKbClAyeErmvQPqCXXyP_TSHcTHINrExeAGXnwmmI6q9N1gWiYQj1ixBym2iryXGdcIM8Np-tbBNnc/s274/IMG_20240520_213749.jpg",     
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg8zhZl__yGQKnaL9n4qIMASM0RbVM6_YYKxkyixUToFtpPcIzt5fJqGaWEpjIGQT1FowmZNXRSSMdJV7H3ExtAGzEFAW3-QRyotMG0_CklCbpIem3Mg3d3ZioxQGLfXiwdChoe1Nz2Ea2qBugHpERxzPO0jA-Cr1NaohDYLPFSX66NbowT-bsS3YaizLxK/s400/Jug.jpg"],
+        correctIndex: 0,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_p6yJe3CyghLbq0QWgnelcfvTFxPpILvBpn39LNQMYNJ8bUx0qB0IsN6lp1VPywQKZkOTsZspNApt8FB2xAl3UKgBlFuNSKXfxoNTFHGc3SstJd65aqleMG55HaGvmS2eBLzonI0SMfApBR8WrgOpBqeMQu7V-JoPSGJmzGmHGl5S6122EQ2ZZnfR7tI9/s400/dog.webp"
+    },
+    {
+        question: "E for?",
+        options: ["Hut", "Egg", "Dog", "Pig"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjrUnILpjX6g0OfaiE_ieyVLPTuExK166wEXw55rbMbAEnU_2ECbC8Dl3R0cLtWYQKLRaCJXYUM3r_Of-Snbq_gQkAEXp_852exSf5o7bnuWJZgXp2KBhRG8B6mG3bnx1w5hik4SQHabu8Q_utdqnCc6sN9PTOcy0UNDjL8W4iATan1teA6NgpFDaYFHE85/s626/images%20-%202024-05-21T104654.644.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJF8rrRy7VDAKSYGZbFiyHjsdr4BjfXPb4C3bum0J54SObr_UN9O3o9a9nKHfoRtsCmKbZA-WS2v7oLfaSPvtABg8_v_r51N2vMeFNe0tc22Tk-Enc9EdNScVTxi33KNRvtsXoMqH6dFln6Vhf3QF8zK72OPtEqDMIitVcMQChlQGZ98M8l0elaapi6yC9/s400/Egg.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh_p6yJe3CyghLbq0QWgnelcfvTFxPpILvBpn39LNQMYNJ8bUx0qB0IsN6lp1VPywQKZkOTsZspNApt8FB2xAl3UKgBlFuNSKXfxoNTFHGc3SstJd65aqleMG55HaGvmS2eBLzonI0SMfApBR8WrgOpBqeMQu7V-JoPSGJmzGmHGl5S6122EQ2ZZnfR7tI9/s400/dog.webp",     
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjyHmbmo6pHdryrYzlGABouUjnPoq5lQ851FHvrvpcELRsp2QE1Gbes-DBkCLexE19bwtq6FaWnAAnldy35kftZHU5heRX4bEfVN4uCYPahGaZwZu3y0lzlSdHK1Iit-o9njzQ9kSALQ6N_c-WilcjSey0dBhaYXX6AiynaDblZ8ll_V3pqRf-Vdu6RQErO/s783/images%20-%202024-05-21T215140.811.jpeg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiJF8rrRy7VDAKSYGZbFiyHjsdr4BjfXPb4C3bum0J54SObr_UN9O3o9a9nKHfoRtsCmKbZA-WS2v7oLfaSPvtABg8_v_r51N2vMeFNe0tc22Tk-Enc9EdNScVTxi33KNRvtsXoMqH6dFln6Vhf3QF8zK72OPtEqDMIitVcMQChlQGZ98M8l0elaapi6yC9/s400/Egg.jpg"
+    },
+    {
+        question: "F for?",
+        options: ["Nest", "Queen", "Fish", "Ice"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgsWFQEq5izexVDfr3kM0x9IMP7aRwX-zv-RjNmo7QGp1ENDEf0D3z6OUQSWTQ6Cr8zmtojtN-S-jDgWwM5XRtMt0APsyk-BYDm8oGMpjj08JiH-mBEAebxSKcEkq87umWttWjpk-BCf9jEuzHf__diu553rYxOYEVgiuv6Hj-yNjCmOFu6s9Ij__LDWoF0/s400/nest.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg0HmS34sJVJEPnDdgSb6y9ZAMTr22jaULI6yTLoTGjQq_EQSumMhlPa1Pq0w5r2nB8dgXL79wgER2XkIC3EPiQb6YDfdbdCNhRL6HLdBYyyWe_HkZiwKzs-OsAYLXcViHPR9ypQTTiedev8F2PmwHjhH-TnJemtKzrsFfdjPyN8FOhCHwb7fhZDGM8udNX/s554/images%20-%202024-05-21T215558.618.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMTg5CULdYWn9bG5Fir8XtCL90RMpKl2JzCoBK3SjPY2cj14lOKOX0lBSiDwVdyLf_Al6gFG_36uXA5XyzJjIiZOSKe8UdIG_tp5q3qRkJEhGgHQq0_RHvoAfrrgDmb7KIEA28bhXgddmb2EskVKvE0ockZfPzLcyY_B8e6_l8_72QiPJRRfZJeNxPzdgp/s400/Fish.jpg",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjY4Hqtz82LieRFiDrhTAH_s1gSBAW4eG-KV0ihG93W-lZJrD8oLxUUUPvJqCQMXwO13TWHBfdfIf2Cdl69ZYTgLKai1royPAOTarmoOzkRuY2nMAxw5Jiw8blg6bK9Tqq4aiYWi2-JKYTwH5TDwVS6PhrUqQB70c0ne1sIPdlhbNur3JNu9whMM3LvzPcC/s602/images%20-%202024-05-21T220854.000.jpeg"],
+        correctIndex: 2,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhMTg5CULdYWn9bG5Fir8XtCL90RMpKl2JzCoBK3SjPY2cj14lOKOX0lBSiDwVdyLf_Al6gFG_36uXA5XyzJjIiZOSKe8UdIG_tp5q3qRkJEhGgHQq0_RHvoAfrrgDmb7KIEA28bhXgddmb2EskVKvE0ockZfPzLcyY_B8e6_l8_72QiPJRRfZJeNxPzdgp/s400/Fish.jpg"
+    },
+    {
+        question: "G for?",
+        options: ["Goat", "Boat", "Lamp", "Zebra"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvzMyIHXzpvy5zCl3LOQ6MZddxRZ3Zd7csHVS2LpmS96TcOXoHWDDxe3HZuXPecy6_sHMJ21oh0BuBTKpWTR7iyTQ2dbL7Jj-PWMkx2Sfh8ciU2eGniYJxDk2foIalLyDdYjlTF8fa1la6_AEGJogyzZ6Ou-aUCE4mISZwtZcMSKheuzW-ppk80c-pR5pd/s400/Goat.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyptT-gfQAvEZX4ouzS1DQG3-C06bdgH_nkWzMcTDA-PI9CT_0TXt_-SLm9O5W86Nd-x27WFpJt1JhRDiWqGb_Z_mSbFD6fkyDIDBXexX8T88oRN-Hfcnrf9tCzf6_5la7s6VsO7qIHqH7W07NlfMchajcdK7eCra3dEKrJfrDLMKcbCuVBcH3c1ZxXnB_/s350/images%20-%202024-05-21T222420.017.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjVzicbL5WaDcz7kn6eKHkRlDX8Iw_SMFMBjycnvvFUmi2Dapdm5bQHVqt5nDlFxh6EGKh4D362FirSfA3lGRkeJ2jfdm3p42ap2qHYT9yVJ6XHwcxhaMzvXcPHe-amyUwvdkw1KW4ELp-KCcKlrlq5baOwTNheoBOeChOuLJFQsEv1g4cFFJ5YG-2OjYI/s800/lamp.webp",  
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO_4OvXF1QtIPcyxCfk6Zf3CalUNw-t_QY3rmTqVt_TnvvKACbExhbY-5z3n3cfDQRDPl2Jr_AyPnq8GZ2BBw2pirc1ntOO1wbH2kQeIqU4Guqn-UsVqs0WzIf7BczL8jKO3rAA7eDrkAQkTonCmiJl0Gbqf2mtrKQZW_NHW4A42uIz_Un8arTFCGU_cfZ/s400/zebra.jpeg"],
+        correctIndex: 0,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvzMyIHXzpvy5zCl3LOQ6MZddxRZ3Zd7csHVS2LpmS96TcOXoHWDDxe3HZuXPecy6_sHMJ21oh0BuBTKpWTR7iyTQ2dbL7Jj-PWMkx2Sfh8ciU2eGniYJxDk2foIalLyDdYjlTF8fa1la6_AEGJogyzZ6Ou-aUCE4mISZwtZcMSKheuzW-ppk80c-pR5pd/s400/Goat.jpg"
+    },
+    {
+        question: "H for?",
+        options: ["ship", "Zebra", "Hat", "Cobra"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLDktc-ATbMGHRcwrtjxF_6XbB_jMadIpX6xAGJFBlMedRLhvSfvPlUtH59YHZhzHlNP7NKdif4PIOa_bHAy_FeJwu69X8KNU1YFr-jbwJ47whptWaWrHbAGAzRWq-AAFsqdex4HL_bCXSlek-AtNI_KoRIgDAELorSMRDXy3cf1wjfAKxhvZ-3adTvJY5/s400/ship.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO_4OvXF1QtIPcyxCfk6Zf3CalUNw-t_QY3rmTqVt_TnvvKACbExhbY-5z3n3cfDQRDPl2Jr_AyPnq8GZ2BBw2pirc1ntOO1wbH2kQeIqU4Guqn-UsVqs0WzIf7BczL8jKO3rAA7eDrkAQkTonCmiJl0Gbqf2mtrKQZW_NHW4A42uIz_Un8arTFCGU_cfZ/s400/zebra.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCCuMfeYDdPeLB9UVNM6XXtmpFLALSKl2XksXG2TH-k02XtwWxR9Mpysx2BXv20aniSkFr9BdSxuMcnjw5Y3yN5lvf_CobTD9bznFtu2YQDu8rmJWaIZTBkIo69MUsT-9GLgHSZ9Ea4MecyeM5o6xvlvu9pyjDwAYw1ULDG2y_7yO8wPFyBdUZ8mTEdCQj/s400/Hat.jpg",                       
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg5RevbA9M5KvG5b6FzIgoZHQcIxioB2J-f6gZS95jNggiMKOPT3Pwqra-ckEMltXZQzeoVhKhHy7By4hA8FshVdP3By4kSZxt1M8DgRmnsxYBZLmbVroNlIBtmELuyhMck6eyACqHAfoobgf-N7qnVuvPVYFeqrW5b5KgqE8kkuEYEvl0xpEQo0fHPfSVU/s600/images%20-%202024-05-20T224123.383.jpeg"],
+        correctIndex: 2,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCCuMfeYDdPeLB9UVNM6XXtmpFLALSKl2XksXG2TH-k02XtwWxR9Mpysx2BXv20aniSkFr9BdSxuMcnjw5Y3yN5lvf_CobTD9bznFtu2YQDu8rmJWaIZTBkIo69MUsT-9GLgHSZ9Ea4MecyeM5o6xvlvu9pyjDwAYw1ULDG2y_7yO8wPFyBdUZ8mTEdCQj/s400/Hat.jpg"
+    },
+    {
+        question: "I for?",
+        options: ["Watch", "IceCream", "Bus", "Queen"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghuWA-AiXE1j2Fe0TPLU-zfD17iU9D8k4mLnew7bTpU0fWDgOkK6hQQnH5Smg-Exx_hNqF92hixCylbTUmejeeBHkJA0N3m_MgVHb_vRSi2E48ECSc_iryuuZKSFdN0oGI0ErgDe89LDT5COwZQj8T4OB0FZpaKMp78pEp4k_Ftxz9uuqqgu27drf5As3K/s400/watch.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9VobnvY5LVPGYejwDCGn5NoGVjHwrxDwI79lEyhiXEFUI36ZYkhjM0vdNQxzXSpwq8GDCJ0WE_Jc3my37vLl5VbJlzKFXgvJyjKC4SF5w3QPg2N1Y3S4C_R7iDmzgWeksWN8lQjdyGU-zcJ-jQVGfaNjOHAy7CmdJgGmIUhSwqqzmAcju-jOHdJbM9PaL/s400/Ice%20cream.webp",
+         
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhD9HdbRlfhNNHkqTSkxRor0WxqTPkREcBI8nv5KTpv6B1M6B_WB7djKhh0QvY52YrRvjaHo1Ta77Fv1-rXntPJb0z1XShPfOswr-BYD0J8xhbgfjLhU7vZnZmfDlaPXesarB5LzyH3jLM_44ti3IaW7lwSLA684L5Wh6dY7y2RA4l7Xpup9dYcCENhyfvS/s694/images%20-%202024-05-22T102015.452.jpeg",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg0HmS34sJVJEPnDdgSb6y9ZAMTr22jaULI6yTLoTGjQq_EQSumMhlPa1Pq0w5r2nB8dgXL79wgER2XkIC3EPiQb6YDfdbdCNhRL6HLdBYyyWe_HkZiwKzs-OsAYLXcViHPR9ypQTTiedev8F2PmwHjhH-TnJemtKzrsFfdjPyN8FOhCHwb7fhZDGM8udNX/s554/images%20-%202024-05-21T215558.618.jpeg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEj9VobnvY5LVPGYejwDCGn5NoGVjHwrxDwI79lEyhiXEFUI36ZYkhjM0vdNQxzXSpwq8GDCJ0WE_Jc3my37vLl5VbJlzKFXgvJyjKC4SF5w3QPg2N1Y3S4C_R7iDmzgWeksWN8lQjdyGU-zcJ-jQVGfaNjOHAy7CmdJgGmIUhSwqqzmAcju-jOHdJbM9PaL/s400/Ice%20cream.webp"
+    },
+    {
+        question: "J for?",
+        options: ["Jug", "Mug", "Globe", "Rose"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg8zhZl__yGQKnaL9n4qIMASM0RbVM6_YYKxkyixUToFtpPcIzt5fJqGaWEpjIGQT1FowmZNXRSSMdJV7H3ExtAGzEFAW3-QRyotMG0_CklCbpIem3Mg3d3ZioxQGLfXiwdChoe1Nz2Ea2qBugHpERxzPO0jA-Cr1NaohDYLPFSX66NbowT-bsS3YaizLxK/s400/Jug.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiyLGEqBofrnWMA9rA1A9_t3YP9I0vMuPk1tZCQYpeS0J7FqbYCPuFpvIoT7RxmQPjptDpE_MbtfGWYg92CeDd7kQPwPPh2K61VAsJBc20-CAIEK8VKbClAyeErmvQPqCXXyP_TSHcTHINrExeAGXnwmmI6q9N1gWiYQj1ixBym2iryXGdcIM8Np-tbBNnc/s274/IMG_20240520_213749.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJfrn4k52HIqnaKbt31m7iS9IxVsSXgkS-Oo-PNLYYhpCzm4aHys5oj0hhQt969HD0GRmM7s9h-ewD-x_QJml_exCgUXyVwTUupO2i-y31lUWT_xqJkyl7wcvtk0E5UP3yUoco8i1j9Sm97JQQnLfh5JDLPGBUxylmLuxVw8hC0ny629KZdTvEmp1VIuQX/s2560/8164urefu1L.jpg",      
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgi0sLTwDjo0lvELOukegEv67bMtH-wWoVSHeDaICezkQRoZ5St9-m4awbo96gYRGAZXjr7EKhF8xQZeVBNMPjwAtMOWvUpXPgx1NME3XqdeplpAjzELlyGA8qCtXg34OTpIfe6y0OHxPOfckMW8Xr1lH1REATn_K21l4ssFkfnMKL1qh9YIJ1kOq0hcpet/s612/rose.jpg" ],
+        correctIndex: 0,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg8zhZl__yGQKnaL9n4qIMASM0RbVM6_YYKxkyixUToFtpPcIzt5fJqGaWEpjIGQT1FowmZNXRSSMdJV7H3ExtAGzEFAW3-QRyotMG0_CklCbpIem3Mg3d3ZioxQGLfXiwdChoe1Nz2Ea2qBugHpERxzPO0jA-Cr1NaohDYLPFSX66NbowT-bsS3YaizLxK/s400/Jug.jpg"
+    },
+    {
+        question: "K for?",
+        options: ["Banana", "Snake", "Moon", "Kite"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgqK8Z-4__SxyRKbn8-4pID8Gwp_-h12Vo9rLIkgslPNnoHM_TXPfXTZy9ffg814xHO30YSOlggr40BwZbthQtG-F8Y0jzuw0AlUfRe4uv7JJSjRT1iPpidU0HaX5ukFA1CAVDRuwPZYiJmI6C8_NTMsVAPBdMRTkkOwgKK4ZD5z7Y5OnpwAh_8h7q0bF8v/s800/banana.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpL2L3cjBtGaKaSyHoX4MQwHIxx8XCo5SuVjnHFy0XHliiDV3E7iKXP3s9tdMgDVLQncPh-pImL8fFGwZLES5lkQYuqeYX4gIwIxYfUcmEYdseTJkLOTl2IO7IfNbMDZGLFx6VIDmJfqOHbEYsMZ9xBZXcB332_fe_z6-DP1rmXI7EjbS4VUP-RzCO1VaP/s600/images%20-%202024-05-20T224123.383.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhnCu0MlGdJZ50AXCq1clKJF04n3G-OxYxwNfPRSn77HFreMj-1nHVCgsu0iKjYERv3sQEWHHm4nNmbyAuYPGZ7Hvm7hMCiLjRMs6QixWmZDnLax47cdN8SydtgPpFK8ehYxFZmnHA-KOK_x5ziqPVE2phPBQQzxx05CrAv_salu6PyKDgYv4yHNy5UXfbe/s1920/moon.jpg", 
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4HZ97sJ6NT9OANtxhKjOAG1YHiejdCG6lTppexUS13TfqhRgMrnbQLl56mFfbzMRvSzHvZdEk4z9y9DmUyXpUk5GmvjbkVIZJ2BK7-y295V0DBjDSsOuC2Tb_Ty7lt09stnqSg6qdKCwiqWKk1gnigdjLoTCysYDpGY9jFUKMFLxXPqTLMtMf9BKBL18n/s400/Kite.jpg"],
+        correctIndex: 3,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi4HZ97sJ6NT9OANtxhKjOAG1YHiejdCG6lTppexUS13TfqhRgMrnbQLl56mFfbzMRvSzHvZdEk4z9y9DmUyXpUk5GmvjbkVIZJ2BK7-y295V0DBjDSsOuC2Tb_Ty7lt09stnqSg6qdKCwiqWKk1gnigdjLoTCysYDpGY9jFUKMFLxXPqTLMtMf9BKBL18n/s400/Kite.jpg"
+    },
+    {
+        question: "L for?",
+        options: ["Gun", "House", "Lamp", "Ship"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiWZ4PHfjX1YzzoWGdu-CVxY6-1QxqkeQqNcXSbJssuPSnzxdrfEcQqwroCgc9pBA2x536FbPvxD2Sndk1G0g96lNbd0rtQpuKCGvAjRpyihzEg-kUo_s7cZawEZMsXXJNVAOYXTbtx_dSmAmC2m9FwCi5vl9hIa1t_QYCpYTffvNJfj5hyphenhyphenfZQi9Gyn3eM7/s457/images%20-%202024-05-22T102816.471.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiNIMZLg6Lq7ni8Yt2aQ39D7qimZNf0cbihGH1UWIXGeVWtQqoF2UshoaUj3xXyY6cJ6sD3WfHH1LE8EYNEtVKKOb7IYn60GZ4SJR1RQ4CPFuSS_nQCPObD7Hv4htkAsO8uSTe5OZ8wDPZkYmXTaNlrTEJRocViJuuew7cwSaPHYmmR0m38RRyj4x6_u9hc/s492/images%20-%202024-05-22T102505.959.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjVzicbL5WaDcz7kn6eKHkRlDX8Iw_SMFMBjycnvvFUmi2Dapdm5bQHVqt5nDlFxh6EGKh4D362FirSfA3lGRkeJ2jfdm3p42ap2qHYT9yVJ6XHwcxhaMzvXcPHe-amyUwvdkw1KW4ELp-KCcKlrlq5baOwTNheoBOeChOuLJFQsEv1g4cFFJ5YG-2OjYI/s800/lamp.webp",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLDktc-ATbMGHRcwrtjxF_6XbB_jMadIpX6xAGJFBlMedRLhvSfvPlUtH59YHZhzHlNP7NKdif4PIOa_bHAy_FeJwu69X8KNU1YFr-jbwJ47whptWaWrHbAGAzRWq-AAFsqdex4HL_bCXSlek-AtNI_KoRIgDAELorSMRDXy3cf1wjfAKxhvZ-3adTvJY5/s400/ship.jpg"],
+        correctIndex: 2,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjVzicbL5WaDcz7kn6eKHkRlDX8Iw_SMFMBjycnvvFUmi2Dapdm5bQHVqt5nDlFxh6EGKh4D362FirSfA3lGRkeJ2jfdm3p42ap2qHYT9yVJ6XHwcxhaMzvXcPHe-amyUwvdkw1KW4ELp-KCcKlrlq5baOwTNheoBOeChOuLJFQsEv1g4cFFJ5YG-2OjYI/s800/lamp.webp" 
+    },
+    {
+        question: "M for?",
+        options: ["Swan", "Monkey", "Key", "Horse"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEisyw-3TgPrUxgdoRXNNYxS8HBENOoorWy-SZBxtp14aYKpM_IYYoyNZJsncTlND1QPn4AxPQbTUqIuVTg8zJvy-pdo46YrL3M3S00hw3T-krooHp8VG7udMtKviNzADomixvG6DokTkHlMHV7tCkeDFbNGeP7FzKJUqWpllmlxAc3yDLGv8DZBbluvzVU5/s580/images%20-%202024-05-22T162157.681.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiIxxC8UmXCsCYWKAfOlOhdWw2qqGarTDVRLnAXoquGbx9UGsczhnQ1YaaV-HsiRQLx4ksjbJRCr5yu4bM7APhXQr9GlZKkzpjD_6OB4iZgFrfecPEBuRrWRMGqLP79_GlJ8qxlMWp_VfmASG4cEWKUceE01nLRw1dAKNBH_kCtActF6u6C0Avd7orDgvTA/s350/monkey.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjM4fVLcFH_J5FBb_uyUj5Gijzray_ttep4sD-yh87lqotioMFMIgidFSDcTxwPoZbDy5i70S7VYAApU-Od4h037FGDezyCVBzMb1USU6GtE6-616O8z2m3ZUcHs1sftkYkqOHRyOB5_dx6rXymSivy4qZftNCo4w5GkvUFMTMdHfRxZ5V-SAYEv0aItYUZ/s554/images%20-%202024-05-21T222733.080.jpeg",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjILxBQ2gWC7ndXZLFa6z8EYbqIAsgmxyIc8wfYBI_sQq0LuHoqv-q3c44FD-o5ioNm91XRbN9gNlmK9nDTG9NSqq8t-ddcqrNxZgslp3QPg9dFJKzBdsZ-W2rmBUpFbxlDUn6pO1fmPpeq3vMxxxYLvWviQwjm9Gff9cGCFZOd7DI5BaGcntU9sUzgda72/s540/horse.jpg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiIxxC8UmXCsCYWKAfOlOhdWw2qqGarTDVRLnAXoquGbx9UGsczhnQ1YaaV-HsiRQLx4ksjbJRCr5yu4bM7APhXQr9GlZKkzpjD_6OB4iZgFrfecPEBuRrWRMGqLP79_GlJ8qxlMWp_VfmASG4cEWKUceE01nLRw1dAKNBH_kCtActF6u6C0Avd7orDgvTA/s350/monkey.jpg"
+    },
+    {
+        question: "N for?",
+        options: ["Kivi", "Star", "Hammer", "Nest"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh5UMJNnYuL0vPxegguvesS4_05JsZKoETyp7vNllC8c1vHgCmZB3UTV6l9tkdbRv0QkmCSkqCnsMERTlssMm8b3R2NBvokteBdg7-9OU14Og4kDOzSj1zivLklk9v06QMwz7xjfnT62IzJGSHZvlkjV6Axgm5z9wxuKarS8ZefYqEH9B6iOZbAgpzMbgl7/s612/Kivi.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhRee35wJXv2D_JO6ChcSCba13t_HZm9jjtyj837Hgn-F0MdQ3ib5y3jaS52KHiTgh0-D7B7KMngoy0AyHMpcMZ5vIwNevCKYourewtgiAraFpsfYI4vrZyc-Bs8cw_rth1PrFiddFZxL2s7LILNt-HnNaJSG5o3o6WTO2tx4QguPweD96_4_edt_bsXFXO/s575/images%20-%202024-05-22T163425.903.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEheihQSW99isBgCVJ6i6zGyP3en7GlusB0szu1-kpSAnJBb20neKDrHGfXis5cuiq8JoAMmpLY1zlrmrKJ_DLwyUe4B-9UQfK1ysnnrYqsC40cNbivGRD3TjwUTLWI41ohQaHlJJgcr_h3Jh7XfKSA3glFhQAJg1OOcEsf_ufZ7WvEtHq3OWFe0v66oRbAg/s626/images%20-%202024-05-22T103449.988.jpeg", 
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgsWFQEq5izexVDfr3kM0x9IMP7aRwX-zv-RjNmo7QGp1ENDEf0D3z6OUQSWTQ6Cr8zmtojtN-S-jDgWwM5XRtMt0APsyk-BYDm8oGMpjj08JiH-mBEAebxSKcEkq87umWttWjpk-BCf9jEuzHf__diu553rYxOYEVgiuv6Hj-yNjCmOFu6s9Ij__LDWoF0/s400/nest.jpg"],
+        correctIndex: 3,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgsWFQEq5izexVDfr3kM0x9IMP7aRwX-zv-RjNmo7QGp1ENDEf0D3z6OUQSWTQ6Cr8zmtojtN-S-jDgWwM5XRtMt0APsyk-BYDm8oGMpjj08JiH-mBEAebxSKcEkq87umWttWjpk-BCf9jEuzHf__diu553rYxOYEVgiuv6Hj-yNjCmOFu6s9Ij__LDWoF0/s400/nest.jpg"
+    },
+    {
+        question: "O for?",
+        options: ["Apple", "Orange", "Mango", "Grapes"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhfX5-4p7r_aeynl4zQ600IHr4jIO6QaaWH13E-klq15G5YG2rrAqj4POTYEOVIcguXNk3mBKuz4Ll7j4ZkB0ESR12RXyRf0M-57zH9ccZO9KULICbWBUtj40ec-nE3yYLGkvz_6xzZXf8FHE3Kgx4efylnmNqbRF-EfNB5B33GmVnxt4BeJoXVGCqrOgP4/s400/apple_158989157.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqris9tfI4Ma076n0jgCmFBZT2XXGNkumSmC2Twn83Xdz67bAIeKJwBvvoXS0vGIuD13aCrbnJ57NL3gkYwyZUSD6XmHo3hxPhpyPfZZp1SIkHcoP6QOxYyqwqL3q3p7PQAACTUGKE14_f0UDtyABTxn3-TR72y-XSBSgftzl5non1hNiGJnyP7Ln88njA/s400/Orange.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg5Co0_qnX04BY1-oLUL9-i_S3P2XMUXtHGdNnPqrMmZKa0JKkGc8U6_BJzspnQFxIH2VtIFuLbjybG3wEQieb66FOM-sIJLgR5O-xpXqHONehdyMDiX3ZsB2DrueqaRVz4L-Vm_cfAp0Xb98zQ5240LD7aRsckWPWJavkhI_3QvtEG6IV8shunQ_2AivFc/s276/Mango.jpg",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgvNbszN57mb3VfWhPZwiKT-nuv7weD0fYzEA-RbrXu6xoVHQ3KiEhFVy5ve5a4_4wcvprnTSdXxNJ69pLN-Mz-qJPmNgQrTbodqKaX7kVNG3_yGlWaG9a1Vzds6l8DRDXlyH0D-ll8BjdHGgi57AEUrDNQlQgqNLgpY2fBGeiGFb-xqR3irmN2JNCxTD-y/s158/Grapes.jpg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiqris9tfI4Ma076n0jgCmFBZT2XXGNkumSmC2Twn83Xdz67bAIeKJwBvvoXS0vGIuD13aCrbnJ57NL3gkYwyZUSD6XmHo3hxPhpyPfZZp1SIkHcoP6QOxYyqwqL3q3p7PQAACTUGKE14_f0UDtyABTxn3-TR72y-XSBSgftzl5non1hNiGJnyP7Ln88njA/s400/Orange.jpg" 
+    },
+    {
+        question: "P for?",
+        options: ["Goat", "Boat", "Lamp", "Pot"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvzMyIHXzpvy5zCl3LOQ6MZddxRZ3Zd7csHVS2LpmS96TcOXoHWDDxe3HZuXPecy6_sHMJ21oh0BuBTKpWTR7iyTQ2dbL7Jj-PWMkx2Sfh8ciU2eGniYJxDk2foIalLyDdYjlTF8fa1la6_AEGJogyzZ6Ou-aUCE4mISZwtZcMSKheuzW-ppk80c-pR5pd/s400/Goat.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhyptT-gfQAvEZX4ouzS1DQG3-C06bdgH_nkWzMcTDA-PI9CT_0TXt_-SLm9O5W86Nd-x27WFpJt1JhRDiWqGb_Z_mSbFD6fkyDIDBXexX8T88oRN-Hfcnrf9tCzf6_5la7s6VsO7qIHqH7W07NlfMchajcdK7eCra3dEKrJfrDLMKcbCuVBcH3c1ZxXnB_/s350/images%20-%202024-05-21T222420.017.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgjVzicbL5WaDcz7kn6eKHkRlDX8Iw_SMFMBjycnvvFUmi2Dapdm5bQHVqt5nDlFxh6EGKh4D362FirSfA3lGRkeJ2jfdm3p42ap2qHYT9yVJ6XHwcxhaMzvXcPHe-amyUwvdkw1KW4ELp-KCcKlrlq5baOwTNheoBOeChOuLJFQsEv1g4cFFJ5YG-2OjYI/s800/lamp.webp",  
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg73nNFCulz9xhlLgPwU5RmwzLKq6DQjptZz9Dkyi4Ys0zlU1tTij80f0Q9mAJ6Tu8wnLzLEAd8tx148ePDvTxjqRByOq3GSF_Kmb-OQn_NTjFqbOy9vaY7hyphenhyphen2DQMShLZYfdcpZK7ZJekQdI2elnR9ImBSkKcwpzJzrIkrVQShMY0h3hjUgdqqdtjRSB115/s400/Pot.webp"],
+        correctIndex: 3,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEg73nNFCulz9xhlLgPwU5RmwzLKq6DQjptZz9Dkyi4Ys0zlU1tTij80f0Q9mAJ6Tu8wnLzLEAd8tx148ePDvTxjqRByOq3GSF_Kmb-OQn_NTjFqbOy9vaY7hyphenhyphen2DQMShLZYfdcpZK7ZJekQdI2elnR9ImBSkKcwpzJzrIkrVQShMY0h3hjUgdqqdtjRSB115/s400/Pot.webp" 
+    },
+    {
+        question: "Q for?",
+        options: ["Bun", "Quill", "horse", "Carrot"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgBmUJFKXLiozDWvrgPepZRu_tt15gP91_ycuSUBHu0aG1bPOrnKFZbaVeI9ux7-GR4EnkKC1DbeMDtGID_idQlNlSQHR9sxsBxmaeymhBdoguPIWEn-_bT-sDuF_MFKuhCpMLuS1ybJsp_zr7XzCI721vAsWRsA6lJnAA6tClVhyphenhyphenHvDEq7-ip6M_jnP-Mo/s554/images%20-%202024-05-22T100840.451.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO2uKzJkE6q172mpZoHZ-8IF4PaoC5nToDtYZ_jfu-seNSH5syBnzORt-p1uGiIubHSFANz92otX6lP9ASH91y0Tuni9ivKX9ayXjI6mCXkzlgTdcJr9K-A9NCvqyqspbBs88Wq9V0b-vrQCyvnrqpcP0qvdwbKEhBQ5VrOEzy4uu81wHs9JfaKlXBr1j2/s400/Quill.jp",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgV542CZrIjuQKnYzgCl6p0CWUNZyUCTFAc0CY9Wfz_fG7oVBYCqiUTJP0-C6hhgl_tDYIj93h-LFi-8qUIrJRIsEs03Zo4rgFJc7NKC-U-0XmgWiAMeyV8Cd3kiDpwl2cI8p4fzzvhV4xETbaI-KLCGCKUJPACu3-hAUKJWXmPfPcW8OD1O1HjCdCIN0nw/s540/horse.jpg",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjds71INCFCOomJRWWbaJipDMu_937do8ql1dBKZ8GKi8MfWaB8qbVSF73sKp6SQqHt62nElvSK3q47_QedSgciSrTwLiv8m9cg8f1JxCdc4uQKY_VDKirkLCR7Q7vvDsPHhXWNqmvEFLXGAxAXZicvtpRxQtFN3IemzYybQW9LWItwBJGoSTIsN9XgCygU/s554/images%20-%202024-05-22T101619.287.jpeg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO2uKzJkE6q172mpZoHZ-8IF4PaoC5nToDtYZ_jfu-seNSH5syBnzORt-p1uGiIubHSFANz92otX6lP9ASH91y0Tuni9ivKX9ayXjI6mCXkzlgTdcJr9K-A9NCvqyqspbBs88Wq9V0b-vrQCyvnrqpcP0qvdwbKEhBQ5VrOEzy4uu81wHs9JfaKlXBr1j2/s400/Quill.jpg"
+    },
+    {
+        question: "R for?",
+        options: ["Goat", "Snake", "Rabbit", "Zebra"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvzMyIHXzpvy5zCl3LOQ6MZddxRZ3Zd7csHVS2LpmS96TcOXoHWDDxe3HZuXPecy6_sHMJ21oh0BuBTKpWTR7iyTQ2dbL7Jj-PWMkx2Sfh8ciU2eGniYJxDk2foIalLyDdYjlTF8fa1la6_AEGJogyzZ6Ou-aUCE4mISZwtZcMSKheuzW-ppk80c-pR5pd/s400/Goat.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgpL2L3cjBtGaKaSyHoX4MQwHIxx8XCo5SuVjnHFy0XHliiDV3E7iKXP3s9tdMgDVLQncPh-pImL8fFGwZLES5lkQYuqeYX4gIwIxYfUcmEYdseTJkLOTl2IO7IfNbMDZGLFx6VIDmJfqOHbEYsMZ9xBZXcB332_fe_z6-DP1rmXI7EjbS4VUP-RzCO1VaP/s600/images%20-%202024-05-20T224123.383.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiXax173ZLy64qOJwV97qcCnChjSTiNc09yTnG2hG5B6nasweUBId04KpIi_Uv-_xhr67jkd1DgGBq7GQ5T2L4IfFW2AZ-I2UxfoHebkDIu3yU3T5bx0YMR2yzDrZ49RKMOSJD5qyT9-K1LgxuPxZ7JPWDGqP9dGgmyvtQwgvS1RvyahT_2LKSYF1qxycvk/s400/rabbit.jpeg",                       
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO_4OvXF1QtIPcyxCfk6Zf3CalUNw-t_QY3rmTqVt_TnvvKACbExhbY-5z3n3cfDQRDPl2Jr_AyPnq8GZ2BBw2pirc1ntOO1wbH2kQeIqU4Guqn-UsVqs0WzIf7BczL8jKO3rAA7eDrkAQkTonCmiJl0Gbqf2mtrKQZW_NHW4A42uIz_Un8arTFCGU_cfZ/s400/zebra.jpeg"],
+        correctIndex: 2,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiXax173ZLy64qOJwV97qcCnChjSTiNc09yTnG2hG5B6nasweUBId04KpIi_Uv-_xhr67jkd1DgGBq7GQ5T2L4IfFW2AZ-I2UxfoHebkDIu3yU3T5bx0YMR2yzDrZ49RKMOSJD5qyT9-K1LgxuPxZ7JPWDGqP9dGgmyvtQwgvS1RvyahT_2LKSYF1qxycvk/s400/rabbit.jpeg" 
+    },
+    {
+        question: "S for?",
+        options: ["Ship", "Mat", "Hat", "Van"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLDktc-ATbMGHRcwrtjxF_6XbB_jMadIpX6xAGJFBlMedRLhvSfvPlUtH59YHZhzHlNP7NKdif4PIOa_bHAy_FeJwu69X8KNU1YFr-jbwJ47whptWaWrHbAGAzRWq-AAFsqdex4HL_bCXSlek-AtNI_KoRIgDAELorSMRDXy3cf1wjfAKxhvZ-3adTvJY5/s400/ship.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgm90VvlhdrhN56zmCx_1rEG90IfgRyexdIpBX8mANdP1tZLBMCXrcT2JYr0dsPw0Ab4V1KxNWQlFrUvj3I2anBzP-n_JQCVXPtiPE1swhv1Z9xrEneex4y0KlOdo_hEIoUs5B9jDBbikp3UszC-JJmYUBe-focDQ2oxV8hg8ZiVHrHX8Mv_u8q_QsCY5HH/s785/images%20-%202024-05-22T163008.865.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgCCuMfeYDdPeLB9UVNM6XXtmpFLALSKl2XksXG2TH-k02XtwWxR9Mpysx2BXv20aniSkFr9BdSxuMcnjw5Y3yN5lvf_CobTD9bznFtu2YQDu8rmJWaIZTBkIo69MUsT-9GLgHSZ9Ea4MecyeM5o6xvlvu9pyjDwAYw1ULDG2y_7yO8wPFyBdUZ8mTEdCQj/s400/Hat.jpg",  
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh13FIjunXR0OjvW8KHHfI_OdlYWaDAyT1bdv54sK28vqQNrekK1SoJFdK17N_icPlgP87xgrOzaaIUZw1AW90EKTNuYAIo9C7QICeTm2KZsgyoSm58LmueWFef2ze6etI5JUe72oNqg90QkiRK5l57e1soQYQDLF5Z48V7-xOP5r0Hz669M2uzV0VdzZoD/s400/Van.jpg"],
+        correctIndex: 0,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiLDktc-ATbMGHRcwrtjxF_6XbB_jMadIpX6xAGJFBlMedRLhvSfvPlUtH59YHZhzHlNP7NKdif4PIOa_bHAy_FeJwu69X8KNU1YFr-jbwJ47whptWaWrHbAGAzRWq-AAFsqdex4HL_bCXSlek-AtNI_KoRIgDAELorSMRDXy3cf1wjfAKxhvZ-3adTvJY5/s400/ship.jpg"
+    },
+    {
+        question: "T for?",
+        options: ["Cat", "Swan", "Lion", "Tiger"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjZz4a5_X4XaGrjHO1JhArKiCZExpqgZYI0ylmsxpGwskQW94v2PRCGDWBeHoVSYojXHNcCWXXmcalnbKxVVRVlXsXrhP07wnr5uJHFZ7b4h_VyGLoNuuIdhBFqku8r8mxLYlJWom1qSSjSFvBoOx0Klm40rMy63BlJvkpM0EuRXWEMZPPO0g3A_5H6e_9i/s400/cat.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEisyw-3TgPrUxgdoRXNNYxS8HBENOoorWy-SZBxtp14aYKpM_IYYoyNZJsncTlND1QPn4AxPQbTUqIuVTg8zJvy-pdo46YrL3M3S00hw3T-krooHp8VG7udMtKviNzADomixvG6DokTkHlMHV7tCkeDFbNGeP7FzKJUqWpllmlxAc3yDLGv8DZBbluvzVU5/s580/images%20-%202024-05-22T162157.681.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjYxZcAHYV1uBWGZgycphGJjH_tP3ob_T84dX6t5BfaitIFaYTicEBciszIRuObuUaNvvWoqTvjmppY0rhKIWymBPQVgBBqRFL4RljI4pfXhfSpKWlHpJSZSjROkIJAgbqpA7ey_1CzyehCgrs1U57m7nf8KQXhqStDyfbJv8usMH46LJG5yNo6L-XItKZD/s540/images%20-%202024-05-22T162736.214.jpeg",   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjnS7dBsE_9JP1aaNzd0LsUJMQyNHlxMQQrWS6ADc-M8kRGHUfOBhmXLnSBxtdSkexIKtccJLE27Wqjw-eCZmk-2Ujd-OIvR8hhRRKQTvxVouIID7rfpCjvXXBkk27bp3tGZUc5fEA-puneRNd_FXmF0WYsCJyCGtNHiZivp59YPqlN80QHTSVZMWPHEqAk/s400/tiger.jpeg"],
+        correctIndex: 3,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjnS7dBsE_9JP1aaNzd0LsUJMQyNHlxMQQrWS6ADc-M8kRGHUfOBhmXLnSBxtdSkexIKtccJLE27Wqjw-eCZmk-2Ujd-OIvR8hhRRKQTvxVouIID7rfpCjvXXBkk27bp3tGZUc5fEA-puneRNd_FXmF0WYsCJyCGtNHiZivp59YPqlN80QHTSVZMWPHEqAk/s400/tiger.jpeg" 
+    },
+    {
+        question: "U for?",
+        options: ["Hammer", "Umbrella", "Bulb", "Globe"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEheihQSW99isBgCVJ6i6zGyP3en7GlusB0szu1-kpSAnJBb20neKDrHGfXis5cuiq8JoAMmpLY1zlrmrKJ_DLwyUe4B-9UQfK1ysnnrYqsC40cNbivGRD3TjwUTLWI41ohQaHlJJgcr_h3Jh7XfKSA3glFhQAJg1OOcEsf_ufZ7WvEtHq3OWFe0v66oRbAg/s626/images%20-%202024-05-22T103449.988.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi5oaoguazMwb4HffsyQcklT5d9t8gE1kO7rJxD1D5Oe6LQcI3N4328ZUtdByYCw3K5qEWLtjx7LyRgKVyxkbkkRUrRtnSwvNdBu3ypQCF2iYFUJxONwJgh4cy5HGgu_O9TkkDniyuCU4DvoeBN3kKuXHTwdc0-W6Dt9xwuJJiKhxLQF0cpzEBTl3x67QjY/s400/Umbrella.jp",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiylFAIBYu3rXjPlQ2WbwnaJ8qXKzOTbazbEiz1wGbiL0lvBHG9wL2OtvIHCzNzheUX5x0mh56jptv-RlY2rAA1XR7UjGbVkwuQk3iHIb7zUuN0aFe5Fj9J-QkY9yeT6I4334I78uK75rMaVhVrrr4j41RplCCzsg-y11zxuLPVPpIvaVV3Lr99qBforb6P/s554/images%20-%202024-05-22T103638.708.jpeg",  
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhJfrn4k52HIqnaKbt31m7iS9IxVsSXgkS-Oo-PNLYYhpCzm4aHys5oj0hhQt969HD0GRmM7s9h-ewD-x_QJml_exCgUXyVwTUupO2i-y31lUWT_xqJkyl7wcvtk0E5UP3yUoco8i1j9Sm97JQQnLfh5JDLPGBUxylmLuxVw8hC0ny629KZdTvEmp1VIuQX/s2560/8164urefu1L.jpg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi5oaoguazMwb4HffsyQcklT5d9t8gE1kO7rJxD1D5Oe6LQcI3N4328ZUtdByYCw3K5qEWLtjx7LyRgKVyxkbkkRUrRtnSwvNdBu3ypQCF2iYFUJxONwJgh4cy5HGgu_O9TkkDniyuCU4DvoeBN3kKuXHTwdc0-W6Dt9xwuJJiKhxLQF0cpzEBTl3x67QjY/s400/Umbrella.jpg"
+    },
+    {
+        question: "V for?",
+        options: ["Can", "Van", "Rose", "Gun"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhNzg_FhyzZXkOnbcWU1zuiuJJPRMAo63ja-pvbGCQNN0WJxQErsg_3vKlvUnXLMwGUv05XtTMLvdr7TeU6dLTckTVzQWkJ5pJUKrmhEed4wB91dGHVo6mB2qa-SxXBJCRnxnmw57X0U3m7eeJ3uKOUPfsivYf1k870x2_OXG3oul6mmt3PuZI9iNV0nnw0/s591/images%20-%202024-05-22T102720.435.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh13FIjunXR0OjvW8KHHfI_OdlYWaDAyT1bdv54sK28vqQNrekK1SoJFdK17N_icPlgP87xgrOzaaIUZw1AW90EKTNuYAIo9C7QICeTm2KZsgyoSm58LmueWFef2ze6etI5JUe72oNqg90QkiRK5l57e1soQYQDLF5Z48V7-xOP5r0Hz669M2uzV0VdzZoD/s400/Van.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhTIrxBqFrvUHk8jLjI2EcLzH_eINvQJWU4UjBWpZjKNf0Vro86SadRk1x4gRoJJxaPMNsopJpXxuDsjW9L3qRPC2e7xDLtxNkoNdae2NrwzuZ7qXboSQHUaZU9oojbFUhHZqtjoovbS2RSb-JybIOH0UWjOYm3jkto_WZ8khoQHsi8E7POTVHwEQHDqPKf/s612/rose.jpg",               
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiWZ4PHfjX1YzzoWGdu-CVxY6-1QxqkeQqNcXSbJssuPSnzxdrfEcQqwroCgc9pBA2x536FbPvxD2Sndk1G0g96lNbd0rtQpuKCGvAjRpyihzEg-kUo_s7cZawEZMsXXJNVAOYXTbtx_dSmAmC2m9FwCi5vl9hIa1t_QYCpYTffvNJfj5hyphenhyphenfZQi9Gyn3eM7/s457/images%20-%202024-05-22T102816.471.jpeg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh13FIjunXR0OjvW8KHHfI_OdlYWaDAyT1bdv54sK28vqQNrekK1SoJFdK17N_icPlgP87xgrOzaaIUZw1AW90EKTNuYAIo9C7QICeTm2KZsgyoSm58LmueWFef2ze6etI5JUe72oNqg90QkiRK5l57e1soQYQDLF5Z48V7-xOP5r0Hz669M2uzV0VdzZoD/s400/Van.jpg"
+    },
+    {
+        question: "W for?",
+        options: ["Bus", "Cycle", "Motor", "Watch"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhD9HdbRlfhNNHkqTSkxRor0WxqTPkREcBI8nv5KTpv6B1M6B_WB7djKhh0QvY52YrRvjaHo1Ta77Fv1-rXntPJb0z1XShPfOswr-BYD0J8xhbgfjLhU7vZnZmfDlaPXesarB5LzyH3jLM_44ti3IaW7lwSLA684L5Wh6dY7y2RA4l7Xpup9dYcCENhyfvS/s694/images%20-%202024-05-22T102015.452.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh7PTmRY3eLRnDa9m7dfSHwp0NZCyYgvblYs6f76sF9lY3u9VOKJyrch1GhVpEAAZzHy_EsiiypFWDv9yP8KD5HwtcmEwkiI2CT341gBgD7803bcoeGZOxAhYrN4xGC1ZuTgLs0RhS8SJtFgFPHo0ZKvParThPI61YV14aVeKbcdCvKI5iE5KKYu1BRH-pR/s634/images%20-%202024-05-22T102035.117.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEhkgjrw1fYBNMq6FRFairmhuYXxTwFEZVtebN8-phMnJGyNVPSEi2q-0yMo3MVA9WCDoBP4d_O30c7NwwmMB7bhcgzSe6rPrY6Omc7CCkYKA_JqWLytg7cqJ-kMsBNmxW9bGevhCLEt3AmKoDbkOOaFT536vb5ImDHmkJQMWT5HL_tG47Ck80UFAVt_P2Qt/s628/images%20-%202024-05-22T102218.517.jpeg",  
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghuWA-AiXE1j2Fe0TPLU-zfD17iU9D8k4mLnew7bTpU0fWDgOkK6hQQnH5Smg-Exx_hNqF92hixCylbTUmejeeBHkJA0N3m_MgVHb_vRSi2E48ECSc_iryuuZKSFdN0oGI0ErgDe89LDT5COwZQj8T4OB0FZpaKMp78pEp4k_Ftxz9uuqqgu27drf5As3K/s400/watch.jpg"],
+        correctIndex: 3,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEghuWA-AiXE1j2Fe0TPLU-zfD17iU9D8k4mLnew7bTpU0fWDgOkK6hQQnH5Smg-Exx_hNqF92hixCylbTUmejeeBHkJA0N3m_MgVHb_vRSi2E48ECSc_iryuuZKSFdN0oGI0ErgDe89LDT5COwZQj8T4OB0FZpaKMp78pEp4k_Ftxz9uuqqgu27drf5As3K/s400/watch.jpg" 
+    },
+    {
+        question: "X for?",
+        options: ["Carrot", "Whale", "X-Mass", "Rabbit"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjds71INCFCOomJRWWbaJipDMu_937do8ql1dBKZ8GKi8MfWaB8qbVSF73sKp6SQqHt62nElvSK3q47_QedSgciSrTwLiv8m9cg8f1JxCdc4uQKY_VDKirkLCR7Q7vvDsPHhXWNqmvEFLXGAxAXZicvtpRxQtFN3IemzYybQW9LWItwBJGoSTIsN9XgCygU/s554/images%20-%202024-05-22T101619.287.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEh8gOLXGjG8VIltBQAwMY5hsU9-pAn3IWU4iij7HYAoQ1d7TilZueuTHicwqjMcfD44D1JGiJvDzBLGlqqB2zgF67SH1SHn3JgBdzpKnvGVMpP-vO5KchgUbE6t3WjWsdhQOwxNuDIASnH1quEsB8o4emIV6X64eFXEXBJ8o2Uw_zQ2dL_NIggp_b0eE2gF/s1600/images%20-%202024-05-22T101801.613.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiIEI0Il1Ja417HbShT32euV0Ik-Ck190v-ZqfdJh8JhU6y9UobJ1rdJOl1wLBpHswiBuDpqwrB7jvWa7qxSwNSl7iCPlx7Djw-VK8e9tgP1L9fBLIfOeex_CCNYjqibev83k1QlJVb83GjGRJXbXr6KQMtXCRuu5bswp8Mp5APZIUGFqs4dQ0-Ls1aPQ-w/s400/x%20mass.jpg",               
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiXax173ZLy64qOJwV97qcCnChjSTiNc09yTnG2hG5B6nasweUBId04KpIi_Uv-_xhr67jkd1DgGBq7GQ5T2L4IfFW2AZ-I2UxfoHebkDIu3yU3T5bx0YMR2yzDrZ49RKMOSJD5qyT9-K1LgxuPxZ7JPWDGqP9dGgmyvtQwgvS1RvyahT_2LKSYF1qxycvk/s400/rabbit.jpeg"],
+        correctIndex: 2,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiIEI0Il1Ja417HbShT32euV0Ik-Ck190v-ZqfdJh8JhU6y9UobJ1rdJOl1wLBpHswiBuDpqwrB7jvWa7qxSwNSl7iCPlx7Djw-VK8e9tgP1L9fBLIfOeex_CCNYjqibev83k1QlJVb83GjGRJXbXr6KQMtXCRuu5bswp8Mp5APZIUGFqs4dQ0-Ls1aPQ-w/s400/x%20mass.jpg"
+    },
+    {
+        question: "Y for?",
+        options: ["Yak", "Parrot", "House", "Nest"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgc8tMH7rldLZirsWRit9gDW2PmocNsezqWZ5jvMDnFZ8iyJpEdPeMHlgDOJicYf5wWuC7NkeAk-2NuBhdpCU1TOvBbMEOs8PplNplFHm3Qg_d3JGi_ckWIoKH6xkQi6kVhTySRUYWC4fBx_nxe4MTvcsNPakLWZCKsB9dA4DToX-0nad8G0duB3TZ5TmSL/s400/yak.jpg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjg1UbCQ8Um8iI_Lrx18BsyZuxML0wHkXFQQhNBXROzQO6JFl7PtxAGeKLCotv9JXP1l1lNVzjbVgNj7PMg65wneFXF6Et3Byz0eSWjiRqSLTIybSCm5SjAamvDZ7TYox3Hf3lml8fqpTmq__CkX1c3VjurBhe-7zUYM5HJCQ3rNxWogsmZ8sCZ7MKZshUf/s600/images%20-%202024-05-22T101302.672.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEiNIMZLg6Lq7ni8Yt2aQ39D7qimZNf0cbihGH1UWIXGeVWtQqoF2UshoaUj3xXyY6cJ6sD3WfHH1LE8EYNEtVKKOb7IYn60GZ4SJR1RQ4CPFuSS_nQCPObD7Hv4htkAsO8uSTe5OZ8wDPZkYmXTaNlrTEJRocViJuuew7cwSaPHYmmR0m38RRyj4x6_u9hc/s492/images%20-%202024-05-22T102505.959.jpeg",     
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgsWFQEq5izexVDfr3kM0x9IMP7aRwX-zv-RjNmo7QGp1ENDEf0D3z6OUQSWTQ6Cr8zmtojtN-S-jDgWwM5XRtMt0APsyk-BYDm8oGMpjj08JiH-mBEAebxSKcEkq87umWttWjpk-BCf9jEuzHf__diu553rYxOYEVgiuv6Hj-yNjCmOFu6s9Ij__LDWoF0/s400/nest.jpg"],
+        correctIndex: 0,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgc8tMH7rldLZirsWRit9gDW2PmocNsezqWZ5jvMDnFZ8iyJpEdPeMHlgDOJicYf5wWuC7NkeAk-2NuBhdpCU1TOvBbMEOs8PplNplFHm3Qg_d3JGi_ckWIoKH6xkQi6kVhTySRUYWC4fBx_nxe4MTvcsNPakLWZCKsB9dA4DToX-0nad8G0duB3TZ5TmSL/s400/yak.jpg"
+    },
+    {
+        question: "Z for?",
+        options: ["Fan", "Zebra", "Bun", "Goat"],
+        optionsImage: [           
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjevx4BbsVSDl3CAxkUODh5KG7ueic6My0niU4Uvt7m2syp0bEOCUU6OfAQEkXIYWxp7dwy5MDt8isURv7fQWwPAnOZmgj6E_w69bckKHNv58pgvfhOUhiwh2hgTuLtBMEMm6pYBiv_st8iczpWeOJ2FJt6aM6kELS_vY5CnYQD5l0KeEuNYCYlJ0Je02Xq/s678/images%20-%202024-05-20T224832.308.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO_4OvXF1QtIPcyxCfk6Zf3CalUNw-t_QY3rmTqVt_TnvvKACbExhbY-5z3n3cfDQRDPl2Jr_AyPnq8GZ2BBw2pirc1ntOO1wbH2kQeIqU4Guqn-UsVqs0WzIf7BczL8jKO3rAA7eDrkAQkTonCmiJl0Gbqf2mtrKQZW_NHW4A42uIz_Un8arTFCGU_cfZ/s400/zebra.jpeg",
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgBmUJFKXLiozDWvrgPepZRu_tt15gP91_ycuSUBHu0aG1bPOrnKFZbaVeI9ux7-GR4EnkKC1DbeMDtGID_idQlNlSQHR9sxsBxmaeymhBdoguPIWEn-_bT-sDuF_MFKuhCpMLuS1ybJsp_zr7XzCI721vAsWRsA6lJnAA6tClVhyphenhyphenHvDEq7-ip6M_jnP-Mo/s554/images%20-%202024-05-22T100840.451.jpeg",                   
+          
+"https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjvzMyIHXzpvy5zCl3LOQ6MZddxRZ3Zd7csHVS2LpmS96TcOXoHWDDxe3HZuXPecy6_sHMJ21oh0BuBTKpWTR7iyTQ2dbL7Jj-PWMkx2Sfh8ciU2eGniYJxDk2foIalLyDdYjlTF8fa1la6_AEGJogyzZ6Ou-aUCE4mISZwtZcMSKheuzW-ppk80c-pR5pd/s400/Goat.jpg"],
+        correctIndex: 1,
+        imageUrl: "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgO_4OvXF1QtIPcyxCfk6Zf3CalUNw-t_QY3rmTqVt_TnvvKACbExhbY-5z3n3cfDQRDPl2Jr_AyPnq8GZ2BBw2pirc1ntOO1wbH2kQeIqU4Guqn-UsVqs0WzIf7BczL8jKO3rAA7eDrkAQkTonCmiJl0Gbqf2mtrKQZW_NHW4A42uIz_Un8arTFCGU_cfZ/s400/zebra.jpeg" 
+    },
+    // Add more questions similarly
+];
+
+let currentQuestionIndex = 0;
+let correctCount = 0;
+let clicked = false;
+
+// Function to render the current question
+function renderQuestion() {
+    const currentQuestion = quizData[currentQuestionIndex];
+    const quizContainer = document.getElementById("quiz-container");
+    quizContainer.innerHTML = `
+        <h1>${currentQuestion.question}</h1>
+         ${currentQuestion.options.map((option, index) => `
+            <div class="option" onclick="checkAnswer(${index})">
+                <img src="${currentQuestion.optionsImage[index]}" alt="Option Image" class="display-image">
+                ${option}
+            </div>
+        `).join("")}
+        
+    `;
+  
+    document.getElementById("resultImage").src = currentQuestion.imageUrl;  
+  	document.getElementById("resultImage").className = "responsive-image";
+}
+
+// Function to check the answer
+function checkAnswer(selectedIndex) {
+    const currentQuestion = quizData[currentQuestionIndex];
+    const selectedOption = document.querySelectorAll(".option")[selectedIndex];
+
+    if (selectedIndex === currentQuestion.correctIndex) {
+        selectedOption.classList.add("correct");
+        if (!clicked) correctCount++;
+        updateImage();
+        document.getElementById("resultImage").style.display = "block";
+    } else {
+        selectedOption.classList.add("wrong");
+    }
+    clicked = true;
+    document.getElementById("correctCount").textContent = correctCount;
+}
+
+// Function to update the image based on the current question
+function updateImage() {
+    document.getElementById("resultImage").src = quizData[currentQuestionIndex].imageUrl;
+}
+
+// Function to move to the next question
+function updateQuestion() {
+    if (currentQuestionIndex < quizData.length - 1) {
+        currentQuestionIndex++;
+        clicked = false;
+        document.getElementById("resultImage").style.display = "none";
+        renderQuestion();
+    } else {
+        alert("Quiz ended. Total correct answers: " + correctCount + "/" + quizData.length);
+    }
+}
+
+// Start the quiz
+renderQuestion();
+</script>
+
+</body>
+</html>
